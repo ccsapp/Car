@@ -4,7 +4,7 @@
 
 ## Design 
 
-[Task Processes](pages/task_processes.md) 
+
 
 ## Implementation and Tests
 

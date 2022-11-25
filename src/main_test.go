@@ -1,4 +1,3 @@
 package main
 
-
-func HelloServer_test() {}
+// refer to https://echo.labstack.com/guide/testing/

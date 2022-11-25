@@ -1,20 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/labstack/echo/v4"
+
+	"DCar/api"
 )
 
 func main() {
-	fmt.Printf("Hello world!")
-	http.HandleFunc("/", HelloServer)
-	http.ListenAndServe(":80", nil)
-	fmt.Printf("done with main")
+	e := echo.New()
 
+	// TODO insert handler implementation
+	api.RegisterHandlers(e, nil)
+
+	e.Logger.Fatal(e.Start(":80"))
 }
-
-func HelloServer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello %s!", r.URL.Path[1:])
-	fmt.Printf("Hello %s!", r.URL.Path[1:])
-}
-

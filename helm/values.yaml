@@ -46,26 +46,30 @@ base-chart:
         - $INGRESS_HOSTNAME #override with default via pipeline
 
   mongodb:
-    enabled: false
+    enabled: true
     resources:
       limits:
-        cpu: 100m
+        cpu: 900m
         memory: 1Gi
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: 200m
+        memory: 512Mi
     # Necessary because no default storageclass is predefined
     global:
       storageClass: shared
-    useStatefulSet: true
+    useStatefulSet: false
     # Authentication configuration
     auth: 
       # Enable Authentication
       enabled: true
       username: mongodb #mandatory if database is set
       password: mongodb 
-      database: mongoDB
+      database: ccsappvp2dcar
       # existingSecret: (keys: mongodb-password, mongodb-root-password, mongodb-replica-set-key)
+    readinessProbe:
+      timeoutSeconds: 30
+    startupProbe:
+      timeoutSeconds: 30
 
   # (beta) Enables a envoy proxy as sidecar get additional metrics, should not be enabled atm
   monitoring:

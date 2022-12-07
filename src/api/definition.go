@@ -11,15 +11,15 @@ import (
 	"DCar/logic/model"
 )
 
-// ServerInterface represents all server handlers.
-type ServerInterface interface {
+// Controller represents all server handlers.
+type Controller interface {
 	// GetCars Get VINs of all Cars
 	// (GET /cars)
 	GetCars(ctx echo.Context) error
-	// AddVehicle Add a New Vehicle
+	// AddCar Add a New Vehicle
 	// (POST /cars)
-	AddVehicle(ctx echo.Context) error
-	// DeleteCar Delete a Car With All Components
+	AddCar(ctx echo.Context) error
+	// DeleteCar DeleteOne a Car With All Components
 	// (DELETE /cars/{vin})
 	DeleteCar(ctx echo.Context, vin model.VinParam) error
 	// GetCar Get All Information About a Specific Car
@@ -27,13 +27,13 @@ type ServerInterface interface {
 	GetCar(ctx echo.Context, vin model.VinParam) error
 }
 
-// ServerInterfaceWrapper converts echo contexts to parameters.
-type ServerInterfaceWrapper struct {
-	Handler ServerInterface
+// ControllerWrapper converts echo contexts to parameters.
+type ControllerWrapper struct {
+	Handler Controller
 }
 
 // GetCars converts echo context to params.
-func (w *ServerInterfaceWrapper) GetCars(ctx echo.Context) error {
+func (w *ControllerWrapper) GetCars(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
@@ -41,17 +41,17 @@ func (w *ServerInterfaceWrapper) GetCars(ctx echo.Context) error {
 	return err
 }
 
-// AddVehicle converts echo context to params.
-func (w *ServerInterfaceWrapper) AddVehicle(ctx echo.Context) error {
+// AddCar converts echo context to params.
+func (w *ControllerWrapper) AddCar(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.AddVehicle(ctx)
+	err = w.Handler.AddCar(ctx)
 	return err
 }
 
 // DeleteCar converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteCar(ctx echo.Context) error {
+func (w *ControllerWrapper) DeleteCar(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "vin" -------------
 	var vin model.VinParam
@@ -67,7 +67,7 @@ func (w *ServerInterfaceWrapper) DeleteCar(ctx echo.Context) error {
 }
 
 // GetCar converts echo context to params.
-func (w *ServerInterfaceWrapper) GetCar(ctx echo.Context) error {
+func (w *ControllerWrapper) GetCar(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "vin" -------------
 	var vin model.VinParam
@@ -99,22 +99,22 @@ type EchoRouter interface {
 }
 
 // RegisterHandlers adds each server route to the EchoRouter.
-func RegisterHandlers(router EchoRouter, si ServerInterface) {
-	RegisterHandlersWithBaseURL(router, si, "")
+func RegisterHandlers(router EchoRouter, controller Controller) error {
+	return RegisterHandlersWithBaseURL(router, controller, "")
 }
 
 // RegisterHandlersWithBaseURL
 // Registers handlers, and prepends BaseURL to the paths, so that the paths
 // can be served under a prefix.
-func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL string) {
-
-	wrapper := ServerInterfaceWrapper{
-		Handler: si,
+func RegisterHandlersWithBaseURL(router EchoRouter, controller Controller, baseURL string) error {
+	wrapper := ControllerWrapper{
+		Handler: controller,
 	}
 
 	router.GET(baseURL+"/cars", wrapper.GetCars)
-	router.POST(baseURL+"/cars", wrapper.AddVehicle)
+	router.POST(baseURL+"/cars", wrapper.AddCar)
 	router.DELETE(baseURL+"/cars/:vin", wrapper.DeleteCar)
 	router.GET(baseURL+"/cars/:vin", wrapper.GetCar)
 
+	return nil
 }

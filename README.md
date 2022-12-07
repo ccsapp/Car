@@ -8,11 +8,23 @@
 
 ## Implementation and Tests
 
-[Configuration](pages/config.md)
 
-[How to Run](pages/how_to_run.md)
+## Local Setup
+To test D-Car locally, you can use the MongoDB setup provided in the `dev` folder.
 
-[Policies](policies/)
+To do so, execute the following commands:
+```bash
+cd dev
+docker-compose up -d
+```
 
-[Tests](pages/tests.md)
+This will start a MongoDB instance on port 27017 with the correct authentication setup.
 
+After that, start the Go server with the following environment variables:
+
+| Environment Variable        | Value         |
+|-----------------------------|---------------|
+| `MONGODB_DATABASE_HOST`     | localhost     |
+| `MONGODB_DATABASE_NAME`     | ccsappvp2dcar |
+| `MONGODB_DATABASE_USER`     | root          |
+| `MONGODB_DATABASE_PASSWORD` | example       |

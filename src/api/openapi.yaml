@@ -1,0 +1,334 @@
+openapi: 3.0.0
+info:
+  title: D-Car
+  version: 1.0.0
+  description: Domain API v1.0 providing static and dynamic car data
+servers: [ ]
+paths:
+  /cars:
+    get:
+      summary: Get VINs of all Cars
+      operationId: getCars
+      responses:
+        '200':
+          description: The VINs of all cars maintained by the system.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/vin'
+    post:
+      summary: Add a New Car
+      operationId: addCar
+      requestBody:
+        description: Static car object that should be added.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/staticCar'
+        required: true
+      responses:
+        "201":
+          description: The operation was successful. The response contains the VIN of the newly added car.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vin'
+        "400":
+          description: The request body is invalid (i.e. violates the schema).
+        "409":
+          description: A car with the specified VIN already exists.
+  /cars/{vin}:
+    parameters:
+      - $ref: '#/components/parameters/vinParam'
+    get:
+      summary: Get All Information About a Specific Car
+      operationId: getCar
+      description: Return all (static and dynamic) information about a car specified by its VIN.
+      responses:
+        '200':
+          description: The operation was successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dynamicCar'
+        "400":
+          $ref: '#/components/responses/vinInvalid'
+        "404":
+          $ref: '#/components/responses/carNotFound'
+    delete:
+      summary: Remove a Car from the System
+      operationId: deleteCar
+      responses:
+        "204":
+          $ref: '#/components/responses/deleted'
+        "400":
+          $ref: '#/components/responses/vinInvalid'
+        "404":
+          $ref: '#/components/responses/carNotFound'
+components:
+  schemas:
+    staticCar:
+      type: object
+      required:
+        - vin
+        - brand
+        - model
+        - productionDate
+        - technicalSpecification
+      properties:
+        vin:
+          $ref: '#/components/schemas/vin'
+        brand:
+          type: string
+          example: "Audi"
+          description: Data that specifies the brand name of the Vehicle manufacturer
+        model:
+          type: string
+          example: "A3"
+          description: Data that specifies the particular type of a Vehicle
+        productionDate:
+          type: string
+          format: date
+          example: "2017-07-21"
+          description: Data that specifies the official date the vehicle was declared to have exited production by the manufacturer.
+        technicalSpecification:
+          $ref: '#/components/schemas/technicalSpecification'
+
+    dynamicCar:
+      type: object
+      required:
+        - vin
+        - brand
+        - model
+        - productionDate
+        - technicalSpecification
+        - dynamicData
+      properties:
+        vin:
+          $ref: '#/components/schemas/vin'
+        brand:
+          type: string
+          example: "Audi"
+          description: Data that specifies the brand name of the Vehicle manufacturer
+        model:
+          type: string
+          example: "A3"
+          description: Data that specifies the particular type of a Vehicle
+        productionDate:
+          type: string
+          format: date
+          example: "2017-07-21"
+          description: Data that specifies the official date the vehicle was declared to have exited production by the manufacturer.
+        technicalSpecification:
+          $ref: '#/components/schemas/technicalSpecification'
+        dynamicData:
+          $ref: '#/components/schemas/dynamicData'
+
+    technicalSpecification:
+      type: object
+      required:
+        - color
+        - weight
+        - trunkVolume
+        - engine
+        - transmission
+        - tire
+        - numberOfSeats
+        - numberOfDoors
+        - fuel
+        - fuelCapacity
+        - consumption
+        - emissions
+      properties:
+        color:
+          type: string
+          example: "black"
+          description: Data on the description of the paint job of a car
+        weight:
+          type: integer
+          example: 1320
+          description: Data that specifies the total weight of a car when empty in kilograms (kg)
+        trunkVolume:
+          type: integer
+          example: 435
+          description: Data on the physical volume of the trunk in liters
+        engine:
+          type: object
+          required:
+            - type
+            - power
+          properties:
+            type:
+              type: string
+              example: 180 CDI
+              description: Data that contains the manufacturer-given type description of the engine
+            power:
+              type: integer
+              example: 150
+              description: Data on the power the engine can provide in kW
+          description: A physical unit that converts fuel into movement
+        transmission:
+          type: string
+          enum:
+            - MANUAL
+            - AUTOMATIC
+          example: MANUAL
+          description: A physical unit responsible for managing the conversion rate of the engine (can be automated or manually operated)
+        tire:
+          type: object
+          required:
+            - manufacturer
+            - type
+          properties:
+            manufacturer:
+              type: string
+              example: GOODYEAR
+              description: Data denoting the company responsible for the creation of a physical unit
+            type:
+              type: string
+              pattern: '^(\d{3}\/\d{2})([RD]F?)(\d{2})(\d{2,3})?(A[1-8]|[B-H]|[J-N]|[P-W]|Y)?$'
+              example: 185/65R15
+              description: Data that contains the manufacturer-given type description of the tire
+          description: A physical unit that serves as the point of contact between a car and the ground
+        numberOfSeats:
+          type: integer
+          example: 5
+          description: Data that defines the number of seats that are built into a car
+        numberOfDoors:
+          type: integer
+          example: 5
+          description: Data that defines the number of doors that are built into a car
+        fuel:
+          type: string
+          enum:
+            - DIESEL
+            - PETROL
+            - ELECTRIC
+            - HYBRID_DIESEL
+            - HYBRID_PETROL
+          example: ELECTRIC
+          description: Data that defines the source of energy that powers the car
+        fuelCapacity:
+          type: string
+          pattern: '^((\d+\.\d+L)|(\d+\.\d+kWh)|((\d+\.\d+L);(\d+\.\d+kWh)))$'
+          example: 54.0L;85.2kWh
+          description: Data that specifies the amount of fuel that can be carried with the car
+        consumption:
+          type: object
+          required:
+            - city
+            - combined
+            - overland
+          properties:
+            city:
+              type: number
+              example: 6.4
+              description: "Data that specifies the amount of fuel that is consumed when driving within the city in: kW/100km or l/100km"
+            overland:
+              type: number
+              example: 4.6
+              description: "Data that specifies the amount of fuel that is consumed when driving outside of a city in: kW/100km or l/100km"
+            combined:
+              type: number
+              example: 5.2
+              description: "Data that specifies the combined amount of fuel that is consumed in: kW / 100 km or l / 100 km"
+          description: Data that specifies the amount of fuel consumed during car operation in units per 100 kilometers
+        emissions:
+          type: object
+          required:
+            - city
+            - overland
+            - combined
+          properties:
+            city:
+              type: number
+              example: 168
+              description: "Data that specifies the amount of emissions when driving within the city in: g CO2 / km"
+            overland:
+              type: number
+              example: 122
+              description: "Data that specifies the amount of emissions when driving outside of a city in: g CO2 / km"
+            combined:
+              type: number
+              example: 137
+              description: "Data that specifies the combined amount of emissions in: g CO2 / km. The combination is done by the manufacturer according to an industry-specific standard"
+          description: Data that specifies the CO2 emitted by a car during operation in gram per kilometer
+
+    dynamicData:
+      type: object
+      required:
+        - fuelLevelPercentage
+        - position
+        - trunkLockState
+        - doorsLockState
+        - engineState
+      properties:
+        fuelLevelPercentage:
+          type: integer
+          example: 100
+          description: Data that specifies the relation of remaining fuelCapacity to the maximum fuelCapacity in percentage
+        position:
+          type: object
+          required:
+            - latitude
+            - longitude
+          properties:
+            latitude:
+              type: number
+              example: 42.1
+              description: Data that specifies the distance from the equator
+            longitude:
+              type: number
+              example: 100.1
+              description: Data that specifies the distance east or west from a line (meridian) passing through Greenwich
+          description: Data that specifies the GeoCoordinate of a car
+        trunkLockState:
+          $ref: '#/components/schemas/lockState'
+        doorsLockState:
+          $ref: '#/components/schemas/lockState'
+        engineState:
+          type: string
+          enum:
+            - 'ON'
+            - 'OFF'
+      description: Data that changes during a car's operation
+
+    lockState:
+      type: string
+      enum:
+        - LOCKED
+        - UNLOCKED
+      description: Data that specifies whether an object is locked or unlocked
+
+    vin:
+      type: string
+      pattern: '^[A-HJ-NPR-Z0-9]{13}[0-9]{4}$'
+      example: WDD1690071J236589
+      description: A Vehicle Identification Number (VIN) which uniquely identifies a car
+
+  responses:
+    vinInvalid:
+      description: The VIN has an invalid format.
+    carNotFound:
+      description: A car with the specified VIN was not found.
+    deleted:
+      description: The resource was deleted successfully.
+
+  parameters:
+    vinParam:
+      in: path
+      name: vin
+      required: true
+      description: The Vehicle Identification Number (VIN) as unique number of a vehicle
+      example: "G1YZ23J9P58034278"
+      style: simple
+      schema:
+        $ref: '#/components/schemas/vin'
+  examples: { }
+  requestBodies: { }
+  headers: { }
+  securitySchemes: { }
+  links: { }
+  callbacks: { }

@@ -4,13 +4,13 @@ go 1.19
 
 require (
 	github.com/deepmap/oapi-codegen v1.12.3
+	github.com/getkin/kin-openapi v0.107.0
 	github.com/labstack/echo/v4 v4.9.1
 	go.mongodb.org/mongo-driver v1.11.0
 )
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
-	github.com/getkin/kin-openapi v0.107.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect

@@ -41,7 +41,7 @@ func (c controller) AddCar(ctx echo.Context) error {
 	vin, err := c.crud.CreateCar(ctx.Request().Context(), &car)
 	if err != nil {
 		if database.IsDuplicateKeyError(err) {
-			return echo.NewHTTPError(http.StatusBadRequest, "VIN already exists")
+			return echo.NewHTTPError(http.StatusConflict, "VIN already exists")
 		}
 		return err
 	}

@@ -1,0 +1,34 @@
+{
+  "vin": "WVWAA71K08W201031",
+  "brand": "Audi",
+  "model": "A4",
+  "productionDate": "2018-07-21",
+  "technicalSpecification": {
+    "color": "black",
+    "weight": 1520,
+    "trunkVolume": 435,
+    "engine": {
+      "type": "180 CDI",
+      "power": 150
+    },
+    "transmission": "MANUAL",
+    "tire": {
+      "manufacturer": "GOODYEAR",
+      "type": "185/65R15"
+    },
+    "numberOfSeats": 5,
+    "numberOfDoors": 5,
+    "fuel": "DIESEL",
+    "fuelCapacity": "58.0L;85.2kWh",
+    "consumption": {
+      "city": 6.4,
+      "overland": 4.6,
+      "combined": 5.2
+    },
+    "emissions": {
+      "city": 168,
+      "overland": 122,
+      "combined": 137
+    }
+  }
+}

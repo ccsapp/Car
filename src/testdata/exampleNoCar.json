@@ -1,0 +1,37 @@
+{
+  "vin": "WVWAA71K08W201030",
+  "brand": "Audi",
+  "model": 42,
+  "productionDate": "yesterday",
+  "technicalSpecification": {
+    "color": "black",
+    "weight": 1320,
+    "trunkVolume": 435,
+    "engine": {
+      "type": "180 CDI",
+      "power": 150
+    },
+    "transmission": "MANUAL",
+    "tire": {
+      "manufacturer": "GOODYEAR",
+      "type": {
+        "x": "185",
+        "y": "65R15"
+      }
+    },
+    "numberOfSeats": 5,
+    "numberOfDoors": 5,
+    "fuel": "ELECTRIC",
+    "fuelCapacity": "54.0L;85.2kWh",
+    "consumption": {
+      "city": 6.4,
+      "overland": 4.6,
+      "combined": 5.2
+    },
+    "emissions": {
+      "city": 168,
+      "overland": 122,
+      "combined": 137
+    }
+  }
+}

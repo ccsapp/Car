@@ -11,8 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const collection = "cars"
-const conversionError = "invalid type in database"
+const CarsCollectionBaseName = "cars"
+
+var conversionError = errors.New("invalid type in database")
 
 // IsDuplicateKeyError checks if the error is a duplicate key error. A duplicate key error can occur if you try to
 // insert a car with a duplicate VIN.
@@ -47,30 +48,32 @@ type ICRUD interface {
 }
 
 type crud struct {
-	db db.IConnection
+	db         db.IConnection
+	collection string
 }
 
-func NewICRUD(db db.IConnection) ICRUD {
+func NewICRUD(db db.IConnection, config *db.Config) ICRUD {
 	return &crud{
-		db,
+		db:         db,
+		collection: config.CollectionPrefix + CarsCollectionBaseName,
 	}
 }
 
 func (c *crud) CreateCar(ctx context.Context, car *model.Car) (model.Vin, error) {
-	res, err := c.db.Insert(ctx, collection, mappers.MapCarToDb(car))
+	res, err := c.db.Insert(ctx, c.collection, mappers.MapCarToDb(car))
 	if err != nil {
 		return "", err
 	}
 	vin, ok := res.InsertedID.(model.Vin)
 	if !ok {
-		return "", errors.New(conversionError)
+		return "", conversionError
 	}
 	return vin, nil
 }
 
 func (c *crud) ReadAllVins(ctx context.Context) ([]model.Vin, error) {
 	var ids []bson.M
-	if err := c.db.GetIDs(ctx, collection, &ids); err != nil {
+	if err := c.db.GetIDs(ctx, c.collection, &ids); err != nil {
 		return nil, err
 	}
 	vins := make([]model.Vin, len(ids))
@@ -81,7 +84,7 @@ func (c *crud) ReadAllVins(ctx context.Context) ([]model.Vin, error) {
 }
 
 func (c *crud) DeleteCar(ctx context.Context, vin model.Vin) (bool, error) {
-	res, err := c.db.DeleteOne(ctx, collection, bson.D{{"_id", vin}})
+	res, err := c.db.DeleteOne(ctx, c.collection, bson.D{{"_id", vin}})
 	if err != nil {
 		return false, err
 	}
@@ -89,7 +92,7 @@ func (c *crud) DeleteCar(ctx context.Context, vin model.Vin) (bool, error) {
 }
 
 func (c *crud) ReadCar(ctx context.Context, vin model.Vin) (model.Car, error) {
-	res := c.db.FindOne(ctx, collection, bson.D{{"_id", vin}})
+	res := c.db.FindOne(ctx, c.collection, bson.D{{"_id", vin}})
 	var car entities.Car
 	err := res.Decode(&car)
 	if err != nil {

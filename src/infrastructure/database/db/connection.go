@@ -5,7 +5,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"os"
 	"time"
 )
 
@@ -35,6 +34,9 @@ type IConnection interface {
 	// should be a bson.M object. The result of the delete operation is returned. If no matching document is found, the
 	// DeletedCount field of the result will be 0, and no error will be returned.
 	DeleteOne(ctx context.Context, collection string, filter interface{}) (*mongo.DeleteResult, error)
+
+	// DropCollection drops a given collection. This is a destructive operation and should only be used for testing.
+	DropCollection(ctx context.Context, collection string) error
 }
 
 type connection struct {
@@ -43,16 +45,16 @@ type connection struct {
 }
 
 // NewDbConnection creates a new connection to the database. You should defer a call to the CleanUpDatabase method
-// on the returned IConnection object. The connection details will be inferred from environment variables.
+// on the returned IConnection object.
 // Any errors are unexpected.
-func NewDbConnection() (IConnection, error) {
+func NewDbConnection(config *Config) (IConnection, error) {
 	m := connection{}
-	return &m, m.setupDatabase()
+	return &m, m.setupDatabase(config)
 }
 
-func (m *connection) setupDatabase() error {
+func (m *connection) setupDatabase(config *Config) error {
 	opts := options.Client()
-	opts.ApplyURI("mongodb://" + os.Getenv("MONGODB_DATABASE_USER") + ":" + os.Getenv("MONGODB_DATABASE_PASSWORD") + "@" + os.Getenv("MONGODB_DATABASE_HOST") + ":" + "27017" + "/" + os.Getenv("MONGODB_DATABASE_NAME"))
+	opts.ApplyURI("mongodb://" + config.User + ":" + config.Password + "@" + config.Host + ":" + "27017" + "/" + config.Db)
 	var err error
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -68,7 +70,7 @@ func (m *connection) setupDatabase() error {
 		return err
 	}
 
-	m.database = m.client.Database(os.Getenv("MONGODB_DATABASE_NAME"), options.Database())
+	m.database = m.client.Database(config.Db, options.Database())
 	return nil
 }
 
@@ -98,4 +100,8 @@ func (m *connection) FindOne(ctx context.Context, collection string, filter inte
 
 func (m *connection) DeleteOne(ctx context.Context, collection string, filter interface{}) (*mongo.DeleteResult, error) {
 	return m.database.Collection(collection).DeleteOne(ctx, filter)
+}
+
+func (m *connection) DropCollection(ctx context.Context, collection string) error {
+	return m.database.Collection(collection).Drop(ctx)
 }

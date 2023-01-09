@@ -3,10 +3,11 @@ package mappers
 import (
 	"DCar/infrastructure/database/entities"
 	"DCar/logic/model"
+	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
 	openapiTypes "github.com/deepmap/oapi-codegen/pkg/types"
 )
 
-func MapCarToDb(car *model.Car) entities.Car {
+func MapCarToDb(car *carTypes.Car) entities.Car {
 	return entities.Car{
 		Vin:            car.Vin,
 		Brand:          car.Brand,
@@ -41,8 +42,8 @@ func MapCarToDb(car *model.Car) entities.Car {
 	}
 }
 
-func MapCarFromDb(car *entities.Car) model.Car {
-	return model.Car{
+func MapCarFromDb(car *entities.Car) carTypes.Car {
+	return carTypes.Car{
 		Vin:                    car.Vin,
 		Brand:                  car.Brand,
 		DynamicData:            model.ExampleDynamicData(), // TODO: do not use example data
@@ -52,48 +53,48 @@ func MapCarFromDb(car *entities.Car) model.Car {
 	}
 }
 
-func mapTechnicalSpecificationFromDb(car *entities.Car) model.TechnicalSpecification {
-	return model.TechnicalSpecification{
+func mapTechnicalSpecificationFromDb(car *entities.Car) carTypes.TechnicalSpecification {
+	return carTypes.TechnicalSpecification{
 		Color:         car.Color,
 		Consumption:   mapTechnicalSpecificationConsumptionFromDb(&car.Consumption),
 		Emissions:     mapTechnicalSpecificationEmissionsFromDb(&car.Emissions),
 		Engine:        mapTechnicalSpecificationEngineFromDb(&car.Engine),
-		Fuel:          model.TechnicalSpecificationFuel(car.Fuel),
+		Fuel:          carTypes.TechnicalSpecificationFuel(car.Fuel),
 		FuelCapacity:  car.FuelCapacity,
 		NumberOfDoors: car.NumberOfDoors,
 		NumberOfSeats: car.NumberOfSeats,
 		Tire:          mapTechnicalSpecificationTireFromDb(&car.Tire),
-		Transmission:  model.TechnicalSpecificationTransmission(car.Transmission),
+		Transmission:  carTypes.TechnicalSpecificationTransmission(car.Transmission),
 		TrunkVolume:   car.TrunkVolume,
 		Weight:        car.Weight,
 	}
 }
 
-func mapTechnicalSpecificationConsumptionFromDb(consumption *entities.Consumption) model.TechnicalSpecificationConsumption {
-	return model.TechnicalSpecificationConsumption{
+func mapTechnicalSpecificationConsumptionFromDb(consumption *entities.Consumption) carTypes.TechnicalSpecificationConsumption {
+	return carTypes.TechnicalSpecificationConsumption{
 		City:     consumption.City,
 		Combined: consumption.Combined,
 		Overland: consumption.Overland,
 	}
 }
 
-func mapTechnicalSpecificationEmissionsFromDb(emissions *entities.Emissions) model.TechnicalSpecificationEmissions {
-	return model.TechnicalSpecificationEmissions{
+func mapTechnicalSpecificationEmissionsFromDb(emissions *entities.Emissions) carTypes.TechnicalSpecificationEmissions {
+	return carTypes.TechnicalSpecificationEmissions{
 		City:     emissions.City,
 		Combined: emissions.Combined,
 		Overland: emissions.Overland,
 	}
 }
 
-func mapTechnicalSpecificationEngineFromDb(engine *entities.Engine) model.TechnicalSpecificationEngine {
-	return model.TechnicalSpecificationEngine{
+func mapTechnicalSpecificationEngineFromDb(engine *entities.Engine) carTypes.TechnicalSpecificationEngine {
+	return carTypes.TechnicalSpecificationEngine{
 		Power: engine.Power,
 		Type:  engine.Type,
 	}
 }
 
-func mapTechnicalSpecificationTireFromDb(tire *entities.Tire) model.TechnicalSpecificationTire {
-	return model.TechnicalSpecificationTire{
+func mapTechnicalSpecificationTireFromDb(tire *entities.Tire) carTypes.TechnicalSpecificationTire {
+	return carTypes.TechnicalSpecificationTire{
 		Manufacturer: tire.Manufacturer,
 		Type:         tire.Type,
 	}

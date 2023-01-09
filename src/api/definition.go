@@ -3,12 +3,11 @@ package api
 
 import (
 	"fmt"
+	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
 	"net/http"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/labstack/echo/v4"
-
-	"DCar/logic/model"
 )
 
 // Controller represents all server handlers.
@@ -21,10 +20,10 @@ type Controller interface {
 	AddCar(ctx echo.Context) error
 	// DeleteCar DeleteOne a Car With All Components
 	// (DELETE /cars/{vin})
-	DeleteCar(ctx echo.Context, vin model.VinParam) error
+	DeleteCar(ctx echo.Context, vin carTypes.VinParam) error
 	// GetCar Get All Information About a Specific Car
 	// (GET /cars/{vin})
-	GetCar(ctx echo.Context, vin model.VinParam) error
+	GetCar(ctx echo.Context, vin carTypes.VinParam) error
 }
 
 // ControllerWrapper converts echo contexts to parameters.
@@ -54,7 +53,7 @@ func (w *ControllerWrapper) AddCar(ctx echo.Context) error {
 func (w *ControllerWrapper) DeleteCar(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "vin" -------------
-	var vin model.VinParam
+	var vin carTypes.VinParam
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "vin", runtime.ParamLocationPath, ctx.Param("vin"), &vin)
 	if err != nil {
@@ -70,7 +69,7 @@ func (w *ControllerWrapper) DeleteCar(ctx echo.Context) error {
 func (w *ControllerWrapper) GetCar(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "vin" -------------
-	var vin model.VinParam
+	var vin carTypes.VinParam
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "vin", runtime.ParamLocationPath, ctx.Param("vin"), &vin)
 	if err != nil {

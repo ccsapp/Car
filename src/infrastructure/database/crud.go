@@ -1,12 +1,14 @@
 package database
 
+//go:generate mockgen -source=./crud.go -package=mocks -destination=../../mocks/mock_crud.go
+
 import (
 	"DCar/infrastructure/database/db"
 	"DCar/infrastructure/database/entities"
 	"DCar/infrastructure/database/mappers"
-	"DCar/logic/model"
 	"context"
 	"errors"
+	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -32,19 +34,19 @@ func IsNotFoundError(err error) bool {
 type ICRUD interface {
 	// CreateCar creates a new car in the database and returns the VIN. If the VIN already exists, an error is returned.
 	// You can check if the error is such an error with IsDuplicateKeyError. Any other errors are unexpected.
-	CreateCar(ctx context.Context, car *model.Car) (model.Vin, error)
+	CreateCar(ctx context.Context, car *carTypes.Car) (carTypes.Vin, error)
 
 	// ReadAllVins returns all VINs in the database. If there are no cars in the database, an empty slice is returned.
 	// Any errors are unexpected.
-	ReadAllVins(ctx context.Context) ([]model.Vin, error)
+	ReadAllVins(ctx context.Context) ([]carTypes.Vin, error)
 
 	// DeleteCar deletes the car with the given VIN and returns true. If the car does not exist, false is returned.
 	// Any errors are unexpected.
-	DeleteCar(ctx context.Context, vin model.Vin) (bool, error)
+	DeleteCar(ctx context.Context, vin carTypes.Vin) (bool, error)
 
 	// ReadCar returns the car with the given VIN. If the car does not exist, an error is returned. You can check if the
 	// error is such an error with IsNotFoundError. Any other errors are unexpected.
-	ReadCar(ctx context.Context, vin model.Vin) (model.Car, error)
+	ReadCar(ctx context.Context, vin carTypes.Vin) (carTypes.Car, error)
 }
 
 type crud struct {
@@ -59,44 +61,44 @@ func NewICRUD(db db.IConnection, config *db.Config) ICRUD {
 	}
 }
 
-func (c *crud) CreateCar(ctx context.Context, car *model.Car) (model.Vin, error) {
+func (c *crud) CreateCar(ctx context.Context, car *carTypes.Car) (carTypes.Vin, error) {
 	res, err := c.db.Insert(ctx, c.collection, mappers.MapCarToDb(car))
 	if err != nil {
 		return "", err
 	}
-	vin, ok := res.InsertedID.(model.Vin)
+	vin, ok := res.InsertedID.(carTypes.Vin)
 	if !ok {
 		return "", conversionError
 	}
 	return vin, nil
 }
 
-func (c *crud) ReadAllVins(ctx context.Context) ([]model.Vin, error) {
+func (c *crud) ReadAllVins(ctx context.Context) ([]carTypes.Vin, error) {
 	var ids []bson.M
 	if err := c.db.GetIDs(ctx, c.collection, &ids); err != nil {
 		return nil, err
 	}
-	vins := make([]model.Vin, len(ids))
+	vins := make([]carTypes.Vin, len(ids))
 	for i, id := range ids {
-		vins[i] = id["_id"].(model.Vin)
+		vins[i] = id["_id"].(carTypes.Vin)
 	}
 	return vins, nil
 }
 
-func (c *crud) DeleteCar(ctx context.Context, vin model.Vin) (bool, error) {
+func (c *crud) DeleteCar(ctx context.Context, vin carTypes.Vin) (bool, error) {
 	res, err := c.db.DeleteOne(ctx, c.collection, bson.D{{"_id", vin}})
 	if err != nil {
 		return false, err
 	}
-	return res.DeletedCount > 0, err
+	return res.DeletedCount > 0, nil
 }
 
-func (c *crud) ReadCar(ctx context.Context, vin model.Vin) (model.Car, error) {
+func (c *crud) ReadCar(ctx context.Context, vin carTypes.Vin) (carTypes.Car, error) {
 	res := c.db.FindOne(ctx, c.collection, bson.D{{"_id", vin}})
 	var car entities.Car
 	err := res.Decode(&car)
 	if err != nil {
-		return model.Car{}, err
+		return carTypes.Car{}, err
 	}
 	return mappers.MapCarFromDb(&car), nil
 }

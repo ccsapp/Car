@@ -1,5 +1,7 @@
 package db
 
+//go:generate mockgen -source=./connection.go -package=mocks -destination=../../../mocks/mock_connection.go
+
 import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"

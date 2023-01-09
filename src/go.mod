@@ -3,8 +3,10 @@ module DCar
 go 1.19
 
 require (
-	github.com/deepmap/oapi-codegen v1.12.3
+	git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git v0.0.0-20221211174249-5632a2a485eb
+	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/getkin/kin-openapi v0.107.0
+	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/steinfletcher/apitest v1.5.14
@@ -39,9 +41,9 @@ require (
 	github.com/xdg-go/stringprep v1.0.3 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

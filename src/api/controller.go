@@ -2,7 +2,7 @@ package api
 
 import (
 	"DCar/infrastructure/database"
-	"DCar/logic/model"
+	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -30,7 +30,7 @@ func (c controller) GetCars(ctx echo.Context) error {
 
 func (c controller) AddCar(ctx echo.Context) error {
 	// get request body
-	var car model.Car
+	var car carTypes.Car
 
 	// bind errors are unexpected since we validated the request body
 	err := ctx.Bind(&car)
@@ -48,7 +48,7 @@ func (c controller) AddCar(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, vin)
 }
 
-func (c controller) DeleteCar(ctx echo.Context, vin model.VinParam) error {
+func (c controller) DeleteCar(ctx echo.Context, vin carTypes.VinParam) error {
 	deleted, err := c.crud.DeleteCar(ctx.Request().Context(), vin)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (c controller) DeleteCar(ctx echo.Context, vin model.VinParam) error {
 	return echo.NewHTTPError(http.StatusNotFound, "VIN not found")
 }
 
-func (c controller) GetCar(ctx echo.Context, vin model.VinParam) error {
+func (c controller) GetCar(ctx echo.Context, vin carTypes.VinParam) error {
 	car, err := c.crud.ReadCar(ctx.Request().Context(), vin)
 	if err != nil {
 		if database.IsNotFoundError(err) {

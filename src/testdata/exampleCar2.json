@@ -16,8 +16,8 @@
       "manufacturer": "GOODYEAR",
       "type": "185/65R15"
     },
-    "numberOfSeats": 5,
-    "numberOfDoors": 5,
+    "numberOfSeats": 3,
+    "numberOfDoors": 4,
     "fuel": "DIESEL",
     "fuelCapacity": "58.0L;85.2kWh",
     "consumption": {

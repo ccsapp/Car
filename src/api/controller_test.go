@@ -2,9 +2,7 @@ package api
 
 import (
 	"DCar/mocks"
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
 	openapiTypes "github.com/deepmap/oapi-codegen/pkg/types"
@@ -117,11 +115,7 @@ func TestController_AddCar_success(t *testing.T) {
 
 	ctx := context.Background()
 
-	requestBody, _ := json.Marshal(exampleModelCar)
-	bodyReader := bytes.NewReader(requestBody)
-
-	request, _ := http.NewRequestWithContext(ctx, "POST", "https://example.com/cars",
-		bodyReader)
+	request, _ := http.NewRequestWithContext(ctx, "POST", "https://example.com/cars", nil)
 
 	mockEchoContext := mocks.NewMockContext(ctrl)
 	mockCrud := mocks.NewMockICRUD(ctrl)
@@ -143,11 +137,7 @@ func TestController_AddCar_duplicate(t *testing.T) {
 
 	ctx := context.Background()
 
-	requestBody, _ := json.Marshal(exampleModelCar)
-	bodyReader := bytes.NewReader(requestBody)
-
-	request, _ := http.NewRequestWithContext(ctx, "POST", "https://example.com/cars",
-		bodyReader)
+	request, _ := http.NewRequestWithContext(ctx, "POST", "https://example.com/cars", nil)
 
 	mockEchoContext := mocks.NewMockContext(ctrl)
 	mockCrud := mocks.NewMockICRUD(ctrl)
@@ -183,11 +173,7 @@ func TestController_AddCar_unexpectedCrudError(t *testing.T) {
 
 	ctx := context.Background()
 
-	requestBody, _ := json.Marshal(exampleModelCar)
-	bodyReader := bytes.NewReader(requestBody)
-
-	request, _ := http.NewRequestWithContext(ctx, "POST", "https://example.com/cars",
-		bodyReader)
+	request, _ := http.NewRequestWithContext(ctx, "POST", "https://example.com/cars", nil)
 
 	mockEchoContext := mocks.NewMockContext(ctrl)
 	mockCrud := mocks.NewMockICRUD(ctrl)
@@ -337,5 +323,74 @@ func TestController_GetCar_unexpectedCrudError(t *testing.T) {
 
 	controller := NewController(mockCrud)
 	err := controller.GetCar(mockEchoContext, vin)
+	assert.ErrorIs(t, err, crudError)
+}
+
+func TestController_ChangeTrunkLockState_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+
+	vin := "12345678901234569"
+
+	request, _ := http.NewRequestWithContext(ctx, "GET", "https://example.com/cars", nil)
+
+	mockEchoContext := mocks.NewMockContext(ctrl)
+	mockCrud := mocks.NewMockICRUD(ctrl)
+
+	mockEchoContext.EXPECT().Request().Return(request)
+	mockEchoContext.EXPECT().Bind(gomock.Any()).SetArg(0, carTypes.UNLOCKED).Return(nil)
+	mockCrud.EXPECT().SetTrunkLockState(ctx, vin, carTypes.UNLOCKED).Return(nil)
+	mockEchoContext.EXPECT().NoContent(http.StatusNoContent)
+
+	controller := NewController(mockCrud)
+	err := controller.ChangeTrunkLockState(mockEchoContext, vin)
+	assert.Nil(t, err)
+}
+
+func TestController_ChangeTrunkLockState_carNotFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+
+	vin := "12345678901234569"
+
+	request, _ := http.NewRequestWithContext(ctx, "GET", "https://example.com/cars", nil)
+
+	mockEchoContext := mocks.NewMockContext(ctrl)
+	mockCrud := mocks.NewMockICRUD(ctrl)
+
+	mockEchoContext.EXPECT().Request().Return(request)
+	mockEchoContext.EXPECT().Bind(gomock.Any()).SetArg(0, carTypes.UNLOCKED).Return(nil)
+	mockCrud.EXPECT().SetTrunkLockState(ctx, vin, carTypes.UNLOCKED).Return(mongo.ErrNoDocuments)
+
+	controller := NewController(mockCrud)
+	err := controller.ChangeTrunkLockState(mockEchoContext, vin)
+	assert.Equal(t, echo.NewHTTPError(http.StatusNotFound, "VIN not found"), err)
+}
+
+func TestController_ChangeTrunkLockState_crudError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+
+	vin := "12345678901234569"
+
+	request, _ := http.NewRequestWithContext(ctx, "GET", "https://example.com/cars", nil)
+
+	mockEchoContext := mocks.NewMockContext(ctrl)
+	mockCrud := mocks.NewMockICRUD(ctrl)
+
+	crudError := errors.New("crud error")
+
+	mockEchoContext.EXPECT().Request().Return(request)
+	mockEchoContext.EXPECT().Bind(gomock.Any()).SetArg(0, carTypes.LOCKED).Return(nil)
+	mockCrud.EXPECT().SetTrunkLockState(ctx, vin, carTypes.LOCKED).Return(crudError)
+
+	controller := NewController(mockCrud)
+	err := controller.ChangeTrunkLockState(mockEchoContext, vin)
 	assert.ErrorIs(t, err, crudError)
 }

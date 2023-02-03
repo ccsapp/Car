@@ -17,6 +17,9 @@ var ExampleCarDuplicate string
 //go:embed exampleCarWithDynamicData.json
 var ExampleCarWithDynamicData string
 
+//go:embed exampleCarUnlockedTrunk.json
+var ExampleCarUnlockedTrunk string
+
 const ExampleCarVinString = "WVWAA71K08W201030"
 const ExampleCar2VinString = "WVWAA71K08W201031"
 

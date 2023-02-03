@@ -7,6 +7,8 @@ import (
 	openapiTypes "github.com/deepmap/oapi-codegen/pkg/types"
 )
 
+// MapCarToDb maps a car from the domain to a car in the database.
+// The trunk lock state is not mapped and set to LOCKED.
 func MapCarToDb(car *carTypes.Car) entities.Car {
 	return entities.Car{
 		Vin:            car.Vin,
@@ -36,9 +38,10 @@ func MapCarToDb(car *carTypes.Car) entities.Car {
 			Manufacturer: car.TechnicalSpecification.Tire.Manufacturer,
 			Type:         car.TechnicalSpecification.Tire.Type,
 		},
-		Transmission: entities.Transmission(car.TechnicalSpecification.Transmission),
-		TrunkVolume:  car.TechnicalSpecification.TrunkVolume,
-		Weight:       car.TechnicalSpecification.Weight,
+		Transmission:   entities.Transmission(car.TechnicalSpecification.Transmission),
+		TrunkVolume:    car.TechnicalSpecification.TrunkVolume,
+		Weight:         car.TechnicalSpecification.Weight,
+		TrunkLockState: entities.LOCKED,
 	}
 }
 
@@ -46,7 +49,7 @@ func MapCarFromDb(car *entities.Car) carTypes.Car {
 	return carTypes.Car{
 		Vin:                    car.Vin,
 		Brand:                  car.Brand,
-		DynamicData:            model.ExampleDynamicData(), // TODO: do not use example data
+		DynamicData:            model.ExampleDynamicData(car.TrunkLockState), // TODO: do not use example data
 		Model:                  car.Model,
 		ProductionDate:         openapiTypes.Date{Time: car.ProductionDate},
 		TechnicalSpecification: mapTechnicalSpecificationFromDb(car),

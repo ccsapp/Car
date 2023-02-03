@@ -19,7 +19,7 @@ var exampleModelCar = carTypes.Car{
 			Latitude:  49.0069,
 			Longitude: 8.4037,
 		},
-		TrunkLockState: carTypes.UNLOCKED,
+		TrunkLockState: carTypes.LOCKED,
 	},
 	Model: "Golf",
 	ProductionDate: openapiTypes.Date{
@@ -85,9 +85,10 @@ var exampleDatabaseCar = entities.Car{
 		Manufacturer: "GOODYEAR",
 		Type:         "185/65R15",
 	},
-	Transmission: entities.MANUAL,
-	TrunkVolume:  435,
-	Weight:       1320,
+	Transmission:   entities.MANUAL,
+	TrunkVolume:    435,
+	Weight:         1320,
+	TrunkLockState: entities.LOCKED,
 }
 
 func TestMapCarToDb(t *testing.T) {

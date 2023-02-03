@@ -31,7 +31,7 @@ var exampleModelCar = carTypes.Car{
 			Latitude:  49.0069,
 			Longitude: 8.4037,
 		},
-		TrunkLockState: carTypes.UNLOCKED,
+		TrunkLockState: carTypes.LOCKED,
 	},
 	Model: "Golf",
 	ProductionDate: openapiTypes.Date{
@@ -292,4 +292,67 @@ func TestCrud_ReadCar_decodeError(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.Equal(t, carTypes.Car{}, car)
+}
+
+func TestCrud_SetTrunkLockState_successChanged(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+
+	mockConnection := mocks.NewMockIConnection(ctrl)
+	mockConnection.
+		EXPECT().
+		UpdateOne(ctx, collectionName, bson.D{{"_id", "12345678901234567"}},
+			bson.D{{"mockData_trunkLockState", carTypes.UNLOCKED}}).
+		Return(&mongo.UpdateResult{
+			MatchedCount: 1,
+		}, nil)
+
+	crud := NewICRUD(mockConnection, config)
+	err := crud.SetTrunkLockState(ctx, "12345678901234567", carTypes.UNLOCKED)
+
+	assert.Nil(t, err)
+}
+
+func TestCrud_SetTrunkLockState_errorCarNotFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+
+	mockConnection := mocks.NewMockIConnection(ctrl)
+	mockConnection.
+		EXPECT().
+		UpdateOne(ctx, collectionName, bson.D{{"_id", "12345678901234567"}},
+			bson.D{{"mockData_trunkLockState", carTypes.UNLOCKED}}).
+		Return(&mongo.UpdateResult{
+			MatchedCount: 0,
+		}, nil)
+
+	crud := NewICRUD(mockConnection, config)
+	err := crud.SetTrunkLockState(ctx, "12345678901234567", carTypes.UNLOCKED)
+
+	assert.True(t, IsNotFoundError(err))
+}
+
+func TestCrud_SetTrunkLockState_databaseError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+
+	databaseError := errors.New("database error")
+
+	mockConnection := mocks.NewMockIConnection(ctrl)
+	mockConnection.
+		EXPECT().
+		UpdateOne(ctx, collectionName, bson.D{{"_id", "12345678901234567"}},
+			bson.D{{"mockData_trunkLockState", carTypes.UNLOCKED}}).
+		Return(nil, databaseError)
+
+	crud := NewICRUD(mockConnection, config)
+	err := crud.SetTrunkLockState(ctx, "12345678901234567", carTypes.UNLOCKED)
+
+	assert.ErrorIs(t, err, databaseError)
 }

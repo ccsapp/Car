@@ -28,12 +28,19 @@ type IConnection interface {
 	GetIDs(ctx context.Context, collection string, resultIds *[]bson.M) error
 
 	// FindOne returns a single document from the specified collection that matches the given filter. The filter
-	// should be a bson.M object. If no document is found, calling the Decode method on the returned SingleResult
+	// should be a bson object. If no document is found, calling the Decode method on the returned SingleResult
 	// will return a mongo.ErrNoDocuments error.
 	FindOne(ctx context.Context, collection string, filter interface{}) *mongo.SingleResult
 
+	// UpdateOne updates a single document from the specified collection that matches the given filter. The filter
+	// should be a bson object. The result of the update operation is returned. If no matching document is found, the
+	// MatchedCount field of the result will be 0, and no error will be returned.
+	// All fields in the update object will be set on the document.
+	UpdateOne(ctx context.Context, collection string, filter interface{}, update interface{}) (*mongo.UpdateResult,
+		error)
+
 	// DeleteOne deletes a single document from the specified collection that matches the given filter. The filter
-	// should be a bson.M object. The result of the delete operation is returned. If no matching document is found, the
+	// should be a bson object. The result of the delete operation is returned. If no matching document is found, the
 	// DeletedCount field of the result will be 0, and no error will be returned.
 	DeleteOne(ctx context.Context, collection string, filter interface{}) (*mongo.DeleteResult, error)
 
@@ -98,6 +105,12 @@ func (m *connection) GetIDs(ctx context.Context, collection string, resultIds *[
 
 func (m *connection) FindOne(ctx context.Context, collection string, filter interface{}) *mongo.SingleResult {
 	return m.database.Collection(collection).FindOne(ctx, filter)
+}
+
+func (m *connection) UpdateOne(ctx context.Context, collection string, filter interface{},
+	update interface{}) (*mongo.UpdateResult, error) {
+
+	return m.database.Collection(collection).UpdateOne(ctx, filter, bson.D{{"$set", update}})
 }
 
 func (m *connection) DeleteOne(ctx context.Context, collection string, filter interface{}) (*mongo.DeleteResult, error) {

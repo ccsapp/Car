@@ -19,6 +19,12 @@ const (
 	MANUAL    Transmission = "MANUAL"
 )
 
+// Defines values for LockState.
+const (
+	UNLOCKED LockState = "UNLOCKED"
+	LOCKED   LockState = "LOCKED"
+)
+
 // Car A specific type of vehicle
 type Car struct {
 	// Vin A Vehicle Identification Number (VIN) which uniquely identifies a car
@@ -34,40 +40,44 @@ type Car struct {
 	ProductionDate time.Time `bson:"productionDate"`
 
 	// Color Data on the description of the paint job of a car
-	Color string `bson:"technicalSpecification.color"`
+	Color string `bson:"technicalSpecification_color"`
 
 	// Consumption Data that specifies the amount of fuel consumed during car operation in units per 100 kilometers
-	Consumption Consumption `bson:"technicalSpecification.consumption"`
+	Consumption Consumption `bson:"technicalSpecification_consumption"`
 
 	// Emissions Data that specifies the CO2 emitted by a car during operation in gram per kilometer
-	Emissions Emissions `bson:"technicalSpecification.emissions"`
+	Emissions Emissions `bson:"technicalSpecification_emissions"`
 
 	// Engine A physical unit that converts fuel into movement
-	Engine Engine `bson:"technicalSpecification.engine"`
+	Engine Engine `bson:"technicalSpecification_engine"`
 
 	// Fuel Data that defines the source of energy that powers the car
-	Fuel Fuel `bson:"technicalSpecification.fuel"`
+	Fuel Fuel `bson:"technicalSpecification_fuel"`
 
 	// FuelCapacity Data that specifies the amount of fuel that can be carried with the car
-	FuelCapacity string `bson:"technicalSpecification.fuelCapacity"`
+	FuelCapacity string `bson:"technicalSpecification_fuelCapacity"`
 
 	// NumberOfDoors Data that defines the number of doors that are built into a car
-	NumberOfDoors int `bson:"technicalSpecification.numberOfDoors"`
+	NumberOfDoors int `bson:"technicalSpecification_numberOfDoors"`
 
 	// NumberOfSeats Data that defines the number of seats that are built into a car
-	NumberOfSeats int `bson:"technicalSpecification.numberOfSeats"`
+	NumberOfSeats int `bson:"technicalSpecification_numberOfSeats"`
 
 	// Tire A physical unit that serves as the point of contact between a car and the ground
-	Tire Tire `bson:"technicalSpecification.tire"`
+	Tire Tire `bson:"technicalSpecification_tire"`
 
 	// Transmission A physical unit responsible for managing the conversion rate of the engine (can be automated or manually operated)
-	Transmission Transmission `bson:"technicalSpecification.transmission"`
+	Transmission Transmission `bson:"technicalSpecification_transmission"`
 
 	// TrunkVolume Data on the physical volume of the trunk in liters
-	TrunkVolume int `bson:"technicalSpecification.trunkVolume"`
+	TrunkVolume int `bson:"technicalSpecification_trunkVolume"`
 
 	// Weight Data that specifies the total weight of a car when empty in kilograms (kg)
-	Weight int `bson:"technicalSpecification.weight"`
+	Weight int `bson:"technicalSpecification_weight"`
+
+	// TrunkLockState Indicates the state of the trunk lock - this is stored in the database to simulate
+	// a real car.
+	TrunkLockState LockState `bson:"mockData_trunkLockState"`
 }
 
 type Consumption struct {
@@ -116,3 +126,6 @@ type Transmission string
 
 // Vin A Vehicle Identification Number (VIN) which uniquely identifies a car
 type Vin = string
+
+// LockState Indicates the state of a lock
+type LockState = string

@@ -16,7 +16,7 @@
       "manufacturer": "GOODYEAR",
       "type": "185/65R15"
     },
-    "numberOfSeats": 5,
+    "numberOfSeats": 7,
     "numberOfDoors": 5,
     "fuel": "ELECTRIC",
     "fuelCapacity": "54.0L;85.2kWh",
@@ -39,6 +39,6 @@
       "latitude": 49.0069,
       "longitude": 8.4037
     },
-    "trunkLockState": "UNLOCKED"
+    "trunkLockState": "LOCKED"
   }
 }

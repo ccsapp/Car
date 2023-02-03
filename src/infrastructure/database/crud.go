@@ -47,6 +47,11 @@ type ICRUD interface {
 	// ReadCar returns the car with the given VIN. If the car does not exist, an error is returned. You can check if the
 	// error is such an error with IsNotFoundError. Any other errors are unexpected.
 	ReadCar(ctx context.Context, vin carTypes.Vin) (carTypes.Car, error)
+
+	// SetTrunkLockState sets the trunk lock state of the car with the given VIN. If the car does not exist,
+	// an error is returned. You can check if the error is such an error with IsNotFoundError. Any other errors are
+	// unexpected.
+	SetTrunkLockState(ctx context.Context, vin carTypes.Vin, state carTypes.DynamicDataLockState) error
 }
 
 type crud struct {
@@ -101,4 +106,19 @@ func (c *crud) ReadCar(ctx context.Context, vin carTypes.Vin) (carTypes.Car, err
 		return carTypes.Car{}, err
 	}
 	return mappers.MapCarFromDb(&car), nil
+}
+
+func (c *crud) SetTrunkLockState(ctx context.Context, vin carTypes.Vin, state carTypes.DynamicDataLockState) error {
+	res, err := c.db.UpdateOne(ctx, c.collection, bson.D{{"_id", vin}}, bson.D{{"mockData_trunkLockState",
+		state}})
+
+	if err != nil {
+		return err
+	}
+
+	if res.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
 }

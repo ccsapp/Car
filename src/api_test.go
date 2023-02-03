@@ -251,3 +251,97 @@ func (suite *ApiTestSuite) TestRemoveCar_success() {
 		Body(testdata.ExampleCarVinArray).
 		End()
 }
+
+func (suite *ApiTestSuite) TestChangeTrunkLockState_noSuchCar() {
+	newApiTest(suite.app, "Change Trunk Lock State of Non-existent Car").
+		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
+		JSON(testdata.QuoteString("UNLOCKED")).
+		Expect(suite.T()).
+		Status(http.StatusNotFound).
+		End()
+}
+
+func (suite *ApiTestSuite) TestChangeTrunkLockState_invalidVinFormat() {
+	newApiTest(suite.app, "Change Trunk Lock State of Car with Invalid VIN").
+		Put("/cars/xyz/trunkLock").
+		JSON(testdata.QuoteString("UNLOCKED")).
+		Expect(suite.T()).
+		Status(http.StatusBadRequest).
+		End()
+}
+
+func (suite *ApiTestSuite) TestChangeTrunkLockState_invalidLockState() {
+	newApiTest(suite.app, "Add the First Car").
+		Post("/cars").
+		JSON(testdata.ExampleCar).
+		Expect(suite.T()).
+		Status(http.StatusCreated).
+		End()
+
+	newApiTest(suite.app, "Change Trunk Lock State of Car with Invalid Lock State").
+		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
+		JSON(testdata.QuoteString("xyz")).
+		Expect(suite.T()).
+		Status(http.StatusBadRequest).
+		End()
+}
+
+func (suite *ApiTestSuite) TestChangeTrunkLockState_successUnchanged() {
+	newApiTest(suite.app, "Add the First Car").
+		Post("/cars").
+		JSON(testdata.ExampleCar).
+		Expect(suite.T()).
+		Status(http.StatusCreated).
+		End()
+
+	newApiTest(suite.app, "Set Lock State to LOCKED").
+		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
+		JSON(testdata.QuoteString("LOCKED")).
+		Expect(suite.T()).
+		Status(http.StatusNoContent).
+		End()
+
+	newApiTest(suite.app, "Get the Car").
+		Get("/cars/" + testdata.ExampleCarVinString).
+		Expect(suite.T()).
+		Status(http.StatusOK).
+		Body(testdata.ExampleCarWithDynamicData).
+		End()
+}
+
+func (suite *ApiTestSuite) TestChangeTrunkLockState_successChanged() {
+	newApiTest(suite.app, "Add the First Car").
+		Post("/cars").
+		JSON(testdata.ExampleCar).
+		Expect(suite.T()).
+		Status(http.StatusCreated).
+		End()
+
+	newApiTest(suite.app, "Set Lock State to UNLOCKED").
+		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
+		JSON(testdata.QuoteString("UNLOCKED")).
+		Expect(suite.T()).
+		Status(http.StatusNoContent).
+		End()
+
+	newApiTest(suite.app, "Get the Car").
+		Get("/cars/" + testdata.ExampleCarVinString).
+		Expect(suite.T()).
+		Status(http.StatusOK).
+		Body(testdata.ExampleCarUnlockedTrunk).
+		End()
+
+	newApiTest(suite.app, "Lock the Trunk Again").
+		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
+		JSON(testdata.QuoteString("LOCKED")).
+		Expect(suite.T()).
+		Status(http.StatusNoContent).
+		End()
+
+	newApiTest(suite.app, "Get the Car").
+		Get("/cars/" + testdata.ExampleCarVinString).
+		Expect(suite.T()).
+		Status(http.StatusOK).
+		Body(testdata.ExampleCarWithDynamicData).
+		End()
+}

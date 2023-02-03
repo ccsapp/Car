@@ -24,6 +24,8 @@ type Controller interface {
 	// GetCar Get All Information About a Specific Car
 	// (GET /cars/{vin})
 	GetCar(ctx echo.Context, vin carTypes.VinParam) error
+	// ChangeTrunkLockState Open or Close Trunk
+	ChangeTrunkLockState(ctx echo.Context, vin carTypes.VinParam) error
 }
 
 // ControllerWrapper converts echo contexts to parameters.
@@ -81,6 +83,21 @@ func (w *ControllerWrapper) GetCar(ctx echo.Context) error {
 	return err
 }
 
+func (w *ControllerWrapper) ChangeTrunkLockState(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "vin" -------------
+	var vin carTypes.VinParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "vin", runtime.ParamLocationPath, ctx.Param("vin"), &vin)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter vin: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.ChangeTrunkLockState(ctx, vin)
+	return err
+}
+
 // EchoRouter
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
@@ -114,6 +131,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, controller Controller, baseU
 	router.POST(baseURL+"/cars", wrapper.AddCar)
 	router.DELETE(baseURL+"/cars/:vin", wrapper.DeleteCar)
 	router.GET(baseURL+"/cars/:vin", wrapper.GetCar)
+	router.PUT(baseURL+"/cars/:vin/trunkLock", wrapper.ChangeTrunkLockState)
 
 	return nil
 }

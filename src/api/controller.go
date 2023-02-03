@@ -69,3 +69,25 @@ func (c controller) GetCar(ctx echo.Context, vin carTypes.VinParam) error {
 	}
 	return ctx.JSON(http.StatusOK, car)
 }
+
+func (c controller) ChangeTrunkLockState(ctx echo.Context, vin carTypes.VinParam) error {
+	// get request body
+	var lockState carTypes.DynamicDataLockState
+
+	// bind errors are unexpected since we validated the request body
+	err := ctx.Bind(&lockState)
+
+	if err != nil {
+		return err
+	}
+
+	err = c.crud.SetTrunkLockState(ctx.Request().Context(), vin, lockState)
+	if database.IsNotFoundError(err) {
+		return echo.NewHTTPError(http.StatusNotFound, "VIN not found")
+	}
+	if err != nil {
+		return err
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
+}

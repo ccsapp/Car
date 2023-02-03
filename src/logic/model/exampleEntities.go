@@ -1,8 +1,11 @@
 package model
 
-import carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
+import (
+	"DCar/infrastructure/database/entities"
+	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
+)
 
-func ExampleDynamicData() carTypes.DynamicData {
+func ExampleDynamicData(trunkLockState entities.LockState) carTypes.DynamicData {
 	return carTypes.DynamicData{
 		DoorsLockState:      carTypes.UNLOCKED,
 		EngineState:         carTypes.OFF,
@@ -11,6 +14,6 @@ func ExampleDynamicData() carTypes.DynamicData {
 			Latitude:  49.0069,
 			Longitude: 8.4037,
 		},
-		TrunkLockState: carTypes.UNLOCKED,
+		TrunkLockState: carTypes.DynamicDataLockState(trunkLockState),
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"DCar/infrastructure/database"
 	"DCar/infrastructure/database/db"
 	"DCar/testdata"
+	"DCar/testhelpers"
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -16,9 +17,10 @@ import (
 
 type ApiTestSuite struct {
 	suite.Suite
-	dbConnection db.IConnection
-	collection   string
-	app          *echo.Echo
+	dbConnection       db.IConnection
+	collection         string
+	app                *echo.Echo
+	recordingFormatter *testhelpers.RecordingFormatter
 }
 
 func (suite *ApiTestSuite) SetupSuite() {
@@ -47,6 +49,10 @@ func (suite *ApiTestSuite) SetupSuite() {
 	suite.app = app
 }
 
+func (suite *ApiTestSuite) SetupTest() {
+	suite.recordingFormatter = testhelpers.NewRecordingFormatter()
+}
+
 func (suite *ApiTestSuite) TearDownSuite() {
 	// close the database connection when the program exits
 	if err := suite.dbConnection.CleanUpDatabase(); err != nil {
@@ -55,6 +61,13 @@ func (suite *ApiTestSuite) TearDownSuite() {
 }
 
 func (suite *ApiTestSuite) TearDownTest() {
+	// generate the sequence diagram for the test
+	suite.recordingFormatter.SetOutFileName(suite.T().Name())
+	suite.recordingFormatter.SetTitle(suite.T().Name())
+
+	diagramFormatter := apitest.SequenceDiagram()
+	diagramFormatter.Format(suite.recordingFormatter.GetRecorder())
+
 	// clear the collection after each test
 	if err := suite.dbConnection.DropCollection(context.Background(), suite.collection); err != nil {
 		suite.T().Fatal(err)
@@ -65,15 +78,15 @@ func TestApiTestSuite(t *testing.T) {
 	suite.Run(t, new(ApiTestSuite))
 }
 
-func newApiTest(handler http.Handler, name string) *apitest.APITest {
-	return apitest.New(name).
+func (suite *ApiTestSuite) newApiTest() *apitest.APITest {
+	return apitest.New().
 		Debug().
-		Handler(handler).
-		Report(apitest.SequenceDiagram())
+		Handler(suite.app).
+		Report(suite.recordingFormatter)
 }
 
 func (suite *ApiTestSuite) TestVinOverview_empty() {
-	newApiTest(suite.app, "Get the Empty VIN Overview").
+	suite.newApiTest().
 		Get("/cars").
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -82,7 +95,7 @@ func (suite *ApiTestSuite) TestVinOverview_empty() {
 }
 
 func (suite *ApiTestSuite) TestGetCar_invalidFormat() {
-	newApiTest(suite.app, "Get a Car with Invalid VIN").
+	suite.newApiTest().
 		Get("/cars/abc").
 		Expect(suite.T()).
 		Status(http.StatusBadRequest).
@@ -91,7 +104,7 @@ func (suite *ApiTestSuite) TestGetCar_invalidFormat() {
 
 func (suite *ApiTestSuite) TestAddCar_success() {
 	// add the example car to the database
-	newApiTest(suite.app, "Add a New Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar).
 		Expect(suite.T()).
@@ -99,7 +112,7 @@ func (suite *ApiTestSuite) TestAddCar_success() {
 		Body(testdata.ExampleCarVin).
 		End()
 
-	newApiTest(suite.app, "Get the VIN Overview").
+	suite.newApiTest().
 		Get("/cars").
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -107,7 +120,7 @@ func (suite *ApiTestSuite) TestAddCar_success() {
 		End()
 
 	// validate that the car was added to the database
-	newApiTest(suite.app, "Get the New Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -117,7 +130,7 @@ func (suite *ApiTestSuite) TestAddCar_success() {
 
 func (suite *ApiTestSuite) TestAddCar_duplicate() {
 	// add the example car to the database
-	newApiTest(suite.app, "Add a New Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar).
 		Expect(suite.T()).
@@ -125,7 +138,7 @@ func (suite *ApiTestSuite) TestAddCar_duplicate() {
 		End()
 
 	// try to add another car with the same VIN
-	newApiTest(suite.app, "Add a Duplicate Car with the same VIN").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCarDuplicate).
 		Expect(suite.T()).
@@ -133,7 +146,7 @@ func (suite *ApiTestSuite) TestAddCar_duplicate() {
 		End()
 
 	// validate that the original car did not change
-	newApiTest(suite.app, "Get the Original Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -141,7 +154,7 @@ func (suite *ApiTestSuite) TestAddCar_duplicate() {
 		End()
 
 	// validate that the VIN does only appear once in the overview
-	newApiTest(suite.app, "Get the VIN Overview").
+	suite.newApiTest().
 		Get("/cars").
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -150,7 +163,7 @@ func (suite *ApiTestSuite) TestAddCar_duplicate() {
 }
 
 func (suite *ApiTestSuite) TestAddCar_invalidJson() {
-	newApiTest(suite.app, "Add Invalid JSON as Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleNoJson).
 		Expect(suite.T()).
@@ -161,7 +174,7 @@ func (suite *ApiTestSuite) TestAddCar_invalidJson() {
 }
 
 func (suite *ApiTestSuite) TestAddCar_invalidCar() {
-	newApiTest(suite.app, "Add Invalid Object as Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleNoCar).
 		Expect(suite.T()).
@@ -172,7 +185,7 @@ func (suite *ApiTestSuite) TestAddCar_invalidCar() {
 }
 
 func (suite *ApiTestSuite) TestAddCar_invalidCarEnums() {
-	newApiTest(suite.app, "Add Car with Invalid Enum Values").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCarWrongEnum).
 		Expect(suite.T()).
@@ -183,7 +196,7 @@ func (suite *ApiTestSuite) TestAddCar_invalidCarEnums() {
 }
 
 func (suite *ApiTestSuite) TestRemoveCar_noSuchCar() {
-	newApiTest(suite.app, "Remove Non-existent Car").
+	suite.newApiTest().
 		Delete("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusNotFound).
@@ -191,7 +204,7 @@ func (suite *ApiTestSuite) TestRemoveCar_noSuchCar() {
 }
 
 func (suite *ApiTestSuite) TestRemoveCar_invalidFormat() {
-	newApiTest(suite.app, "Remove Non-existent Car").
+	suite.newApiTest().
 		Delete("/cars/xyz").
 		Expect(suite.T()).
 		Status(http.StatusBadRequest).
@@ -200,14 +213,14 @@ func (suite *ApiTestSuite) TestRemoveCar_invalidFormat() {
 
 func (suite *ApiTestSuite) TestRemoveCar_success() {
 	// add two cars
-	newApiTest(suite.app, "Add the First Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar).
 		Expect(suite.T()).
 		Status(http.StatusCreated).
 		End()
 
-	newApiTest(suite.app, "Add the Second Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar2).
 		Expect(suite.T()).
@@ -215,7 +228,7 @@ func (suite *ApiTestSuite) TestRemoveCar_success() {
 		End()
 
 	// verify that both cars exist
-	newApiTest(suite.app, "Get the VIN Overview of Both Cars").
+	suite.newApiTest().
 		Get("/cars").
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -223,28 +236,28 @@ func (suite *ApiTestSuite) TestRemoveCar_success() {
 		End()
 
 	// remove one car
-	newApiTest(suite.app, "Remove Second Car").
+	suite.newApiTest().
 		Delete("/cars/" + testdata.ExampleCar2VinString).
 		Expect(suite.T()).
 		Status(http.StatusNoContent).
 		End()
 
 	// verify that the car was removed
-	newApiTest(suite.app, "Request Removed Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCar2VinString).
 		Expect(suite.T()).
 		Status(http.StatusNotFound).
 		End()
 
 	// verify that the other car is still there
-	newApiTest(suite.app, "Request Remaining Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusOK).
 		Body(testdata.ExampleCarWithDynamicData).
 		End()
 
-	newApiTest(suite.app, "Get the VIN Overview").
+	suite.newApiTest().
 		Get("/cars").
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -253,7 +266,7 @@ func (suite *ApiTestSuite) TestRemoveCar_success() {
 }
 
 func (suite *ApiTestSuite) TestChangeTrunkLockState_noSuchCar() {
-	newApiTest(suite.app, "Change Trunk Lock State of Non-existent Car").
+	suite.newApiTest().
 		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
 		JSON(testdata.QuoteString("UNLOCKED")).
 		Expect(suite.T()).
@@ -262,7 +275,7 @@ func (suite *ApiTestSuite) TestChangeTrunkLockState_noSuchCar() {
 }
 
 func (suite *ApiTestSuite) TestChangeTrunkLockState_invalidVinFormat() {
-	newApiTest(suite.app, "Change Trunk Lock State of Car with Invalid VIN").
+	suite.newApiTest().
 		Put("/cars/xyz/trunkLock").
 		JSON(testdata.QuoteString("UNLOCKED")).
 		Expect(suite.T()).
@@ -271,14 +284,14 @@ func (suite *ApiTestSuite) TestChangeTrunkLockState_invalidVinFormat() {
 }
 
 func (suite *ApiTestSuite) TestChangeTrunkLockState_invalidLockState() {
-	newApiTest(suite.app, "Add the First Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar).
 		Expect(suite.T()).
 		Status(http.StatusCreated).
 		End()
 
-	newApiTest(suite.app, "Change Trunk Lock State of Car with Invalid Lock State").
+	suite.newApiTest().
 		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
 		JSON(testdata.QuoteString("xyz")).
 		Expect(suite.T()).
@@ -287,21 +300,21 @@ func (suite *ApiTestSuite) TestChangeTrunkLockState_invalidLockState() {
 }
 
 func (suite *ApiTestSuite) TestChangeTrunkLockState_successUnchanged() {
-	newApiTest(suite.app, "Add the First Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar).
 		Expect(suite.T()).
 		Status(http.StatusCreated).
 		End()
 
-	newApiTest(suite.app, "Set Lock State to LOCKED").
+	suite.newApiTest().
 		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
 		JSON(testdata.QuoteString("LOCKED")).
 		Expect(suite.T()).
 		Status(http.StatusNoContent).
 		End()
 
-	newApiTest(suite.app, "Get the Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusOK).
@@ -310,35 +323,35 @@ func (suite *ApiTestSuite) TestChangeTrunkLockState_successUnchanged() {
 }
 
 func (suite *ApiTestSuite) TestChangeTrunkLockState_successChanged() {
-	newApiTest(suite.app, "Add the First Car").
+	suite.newApiTest().
 		Post("/cars").
 		JSON(testdata.ExampleCar).
 		Expect(suite.T()).
 		Status(http.StatusCreated).
 		End()
 
-	newApiTest(suite.app, "Set Lock State to UNLOCKED").
+	suite.newApiTest().
 		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
 		JSON(testdata.QuoteString("UNLOCKED")).
 		Expect(suite.T()).
 		Status(http.StatusNoContent).
 		End()
 
-	newApiTest(suite.app, "Get the Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusOK).
 		Body(testdata.ExampleCarUnlockedTrunk).
 		End()
 
-	newApiTest(suite.app, "Lock the Trunk Again").
+	suite.newApiTest().
 		Put("/cars/" + testdata.ExampleCarVinString + "/trunkLock").
 		JSON(testdata.QuoteString("LOCKED")).
 		Expect(suite.T()).
 		Status(http.StatusNoContent).
 		End()
 
-	newApiTest(suite.app, "Get the Car").
+	suite.newApiTest().
 		Get("/cars/" + testdata.ExampleCarVinString).
 		Expect(suite.T()).
 		Status(http.StatusOK).

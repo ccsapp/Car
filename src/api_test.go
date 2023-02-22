@@ -1,6 +1,7 @@
 package main
 
 import (
+	"DCar/environment"
 	"DCar/infrastructure/database"
 	"DCar/infrastructure/database/db"
 	"DCar/testdata"
@@ -24,29 +25,43 @@ type ApiTestSuite struct {
 }
 
 func (suite *ApiTestSuite) SetupSuite() {
-	// load the environment variables for the database layer
-	config, err := db.LoadConfigFromFile("testdata/testdb.env")
-	if err != nil {
-		suite.T().Fatal(err.Error())
-	}
-
 	// generate a collection name so that concurrent executions do not interfere
-	config.CollectionPrefix = fmt.Sprintf("test-%d-", time.Now().Unix())
-	suite.collection = config.CollectionPrefix + database.CarsCollectionBaseName
+	collectionPrefix := fmt.Sprintf("test-%d-", time.Now().Unix())
+	environment.GetEnvironment().SetAppCollectionPrefix(collectionPrefix)
+	suite.collection = collectionPrefix + database.CarsCollectionBaseName
 
 	// create a new database connection
-	dbConnection, err := db.NewDbConnection(config)
+	dbConnection, err := db.NewDbConnection(environment.GetEnvironment())
 	if err != nil {
-		suite.T().Fatal(err.Error())
+		suite.handleDbConnectionError(err)
 	}
 
 	suite.dbConnection = dbConnection
 
-	app, err := newApp(dbConnection, config)
+	app, err := newApp(dbConnection)
 	if err != nil {
 		suite.T().Fatal(err.Error())
 	}
 	suite.app = app
+}
+
+func (suite *ApiTestSuite) handleDbConnectionError(err error) {
+	// if local setup mode is disabled, we fail without any additional checks
+	if !environment.GetEnvironment().IsLocalSetupMode() {
+		suite.T().Fatal(err.Error())
+	}
+
+	running, dockerErr := testhelpers.IsMongoDbContainerRunning()
+	if dockerErr != nil {
+		suite.T().Fatal(err.Error())
+	}
+	if !running {
+		suite.T().Fatal("MongoDB container is not running. " +
+			"Please start it with 'docker compose up -d' and try again.")
+	}
+	fmt.Println("MongoDB container seems to be running, but the connection could not be established. " +
+		"Please check the logs for more information.")
+	suite.T().Fatal(err.Error())
 }
 
 func (suite *ApiTestSuite) SetupTest() {

@@ -2,15 +2,18 @@ package main
 
 import (
 	"DCar/api"
+	"DCar/environment"
 	"DCar/infrastructure/database"
 	"DCar/infrastructure/database/db"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 )
 
-// newApp allows production as well as testing to create a new Echo instance for the API
-func newApp(dbConnection db.IConnection, dbConfig *db.Config) (*echo.Echo, error) {
+// newApp allows production as well as testing to create a new Echo instance for the API.
+// Configuration values are read from the environment.
+func newApp(dbConnection db.IConnection) (*echo.Echo, error) {
 	app := echo.New()
 
 	// add OpenAPI validation to the echo instance
@@ -20,7 +23,7 @@ func newApp(dbConnection db.IConnection, dbConfig *db.Config) (*echo.Echo, error
 	}
 
 	// create a high level CRUD interface for the database and attach it to a controller handling the requests
-	err = api.RegisterHandlers(app, api.NewController(database.NewICRUD(dbConnection, dbConfig)))
+	err = api.RegisterHandlers(app, api.NewController(database.NewICRUD(dbConnection, environment.GetEnvironment())))
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +47,8 @@ func newApp(dbConnection db.IConnection, dbConfig *db.Config) (*echo.Echo, error
 }
 
 func main() {
-	// load the database configuration from the environment
-	dbConfig, err := db.LoadConfigFromEnv()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
 	// create a new database connection
-	dbConnection, err := db.NewDbConnection(dbConfig)
+	dbConnection, err := db.NewDbConnection(environment.GetEnvironment())
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -63,11 +60,11 @@ func main() {
 		}
 	}()
 
-	app, err := newApp(dbConnection, dbConfig)
+	app, err := newApp(dbConnection)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	// start the server on port 80
-	app.Logger.Fatal(app.Start(":80"))
+	// start the server on the configured port
+	app.Logger.Fatal(app.Start(fmt.Sprintf(":%d", environment.GetEnvironment().GetAppExposePort())))
 }

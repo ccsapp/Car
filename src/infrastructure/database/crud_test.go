@@ -1,7 +1,6 @@
 package database
 
 import (
-	"DCar/infrastructure/database/db"
 	"DCar/infrastructure/database/mappers"
 	"DCar/mocks"
 	"context"
@@ -19,7 +18,13 @@ import (
 
 const collectionName = "cars"
 
-var config = &db.Config{CollectionPrefix: ""}
+type TestCrudConfig struct{}
+
+func (c *TestCrudConfig) GetAppCollectionPrefix() string {
+	return ""
+}
+
+var config = &TestCrudConfig{}
 
 var exampleModelCar = carTypes.Car{
 	Brand: "Volkswagen",

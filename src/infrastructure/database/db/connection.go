@@ -4,6 +4,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -56,14 +57,25 @@ type connection struct {
 // NewDbConnection creates a new connection to the database. You should defer a call to the CleanUpDatabase method
 // on the returned IConnection object.
 // Any errors are unexpected.
-func NewDbConnection(config *Config) (IConnection, error) {
+func NewDbConnection(config DatabaseConfig) (IConnection, error) {
 	m := connection{}
 	return &m, m.setupDatabase(config)
 }
 
-func (m *connection) setupDatabase(config *Config) error {
+func toConnectionUri(config DatabaseConfig) string {
+	return fmt.Sprintf(
+		"mongodb://%s:%s@%s:%d/%s",
+		config.GetMongoDbUser(),
+		config.GetMongoDbPassword(),
+		config.GetMongoDbHost(),
+		config.GetMongoDbPort(),
+		config.GetMongoDbDatabase(),
+	)
+}
+
+func (m *connection) setupDatabase(config DatabaseConfig) error {
 	opts := options.Client()
-	opts.ApplyURI("mongodb://" + config.User + ":" + config.Password + "@" + config.Host + ":" + "27017" + "/" + config.Db)
+	opts.ApplyURI(toConnectionUri(config))
 	var err error
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -75,11 +87,11 @@ func (m *connection) setupDatabase(config *Config) error {
 	}
 
 	// ensure connection was successful
-	if err = m.client.Ping(context.Background(), nil); err != nil {
+	if err = m.client.Ping(ctx, nil); err != nil {
 		return err
 	}
 
-	m.database = m.client.Database(config.Db, options.Database())
+	m.database = m.client.Database(config.GetMongoDbDatabase(), options.Database())
 	return nil
 }
 
@@ -87,7 +99,9 @@ func (m *connection) CleanUpDatabase() error {
 	return m.client.Disconnect(context.Background())
 }
 
-func (m *connection) Insert(ctx context.Context, collection string, document interface{}) (*mongo.InsertOneResult, error) {
+func (m *connection) Insert(ctx context.Context, collection string, document interface{}) (*mongo.InsertOneResult,
+	error) {
+
 	return m.database.Collection(collection).InsertOne(ctx, document)
 }
 
@@ -113,7 +127,9 @@ func (m *connection) UpdateOne(ctx context.Context, collection string, filter in
 	return m.database.Collection(collection).UpdateOne(ctx, filter, bson.D{{"$set", update}})
 }
 
-func (m *connection) DeleteOne(ctx context.Context, collection string, filter interface{}) (*mongo.DeleteResult, error) {
+func (m *connection) DeleteOne(ctx context.Context, collection string, filter interface{}) (*mongo.DeleteResult,
+	error) {
+
 	return m.database.Collection(collection).DeleteOne(ctx, filter)
 }
 

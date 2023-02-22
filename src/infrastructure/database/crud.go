@@ -29,6 +29,10 @@ func IsNotFoundError(err error) bool {
 	return err == mongo.ErrNoDocuments
 }
 
+type CrudConfig interface {
+	GetAppCollectionPrefix() string
+}
+
 // ICRUD is a high level database interface. It directly maps to the business logic and abstracts away the
 // database entities and the database connection.
 type ICRUD interface {
@@ -59,10 +63,10 @@ type crud struct {
 	collection string
 }
 
-func NewICRUD(db db.IConnection, config *db.Config) ICRUD {
+func NewICRUD(db db.IConnection, config CrudConfig) ICRUD {
 	return &crud{
 		db:         db,
-		collection: config.CollectionPrefix + CarsCollectionBaseName,
+		collection: config.GetAppCollectionPrefix() + CarsCollectionBaseName,
 	}
 }
 

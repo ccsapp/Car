@@ -60,11 +60,11 @@ variable. Instead, use the following environment variables to configure the micr
 ## Testing
 
 ### Test Setup
-The Unit Tests of FleetManagement depend on automatically generated Go mocks.
+The Unit Tests of Car depend on automatically generated Go mocks.
 You need to install [mockgen](https://github.com/golang/mock#installation) to generate them.
 After the installation, execute `go generate ./...` in the `src` directory of this project.
-The provided API endpoints of FleetManagement are specified in the
-[API specification](https://git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/application/p-fleetmanagementdesign/-/blob/main/openapi.yaml).
+The provided API endpoints of Car are specified in the
+[API specification](https://git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cardesign/-/blob/main/openapi.yaml).
 
 ### Running the Tests
 To run the tests locally, choose the local setup mode, or use a custom setup as described above

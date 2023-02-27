@@ -53,7 +53,7 @@ func (suite *ApiTestSuite) handleDbConnectionError(err error) {
 
 	running, dockerErr := testhelpers.IsMongoDbContainerRunning()
 	if dockerErr != nil {
-		suite.T().Fatal(err.Error())
+		suite.T().Fatal(dockerErr.Error())
 	}
 	if !running {
 		suite.T().Fatal("MongoDB container is not running. " +

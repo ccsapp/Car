@@ -2,13 +2,12 @@
 Car is a domain layer microservice of CCSAppVP2 that provides static and dynamic car data.
 
 Since the models that Car uses are also needed in other microservices they were extracted to a separate repository. 
-The models are available at the private Git repository 
-[CarGoTypes](https://git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes) to provide mappings for the 
+The models are available at 
+[cargotypes](https://github.com/ccsapp/cargotypes) to provide mappings for the 
 JSON responses.
-Further information on the usage of private Git repositories with go can be found there.
 
 The provided API endpoints of Car are specified in the
-[API specification](https://git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cardesign/-/blob/main/openapi.yaml).
+[API specification](https://github.com/ccsapp/CarDesign/blob/main/openapi.yaml).
 
 ## Local Setup Mode
 To run the microservice Car locally, you can use the MongoDB setup provided in the `dev` directory.

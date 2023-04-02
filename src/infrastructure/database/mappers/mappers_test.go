@@ -2,7 +2,7 @@ package mappers
 
 import (
 	"DCar/infrastructure/database/entities"
-	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
+	carTypes "github.com/ccsapp/cargotypes"
 	openapiTypes "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/stretchr/testify/assert"
 	"testing"

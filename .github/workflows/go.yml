@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MONGODB_DATABASE_HOST: ${{ secrets.MONGODB_DATABASE_HOST }}
-      MONGODB_DATABASE_NAME: ${{ env.MONGODB_DATABASE_NAME }}
+      MONGODB_DATABASE_NAME: ${{ vars.MONGODB_DATABASE_NAME }}
       MONGODB_DATABASE_USER: ${{ secrets.MONGODB_DATABASE_USER }}
       MONGODB_DATABASE_PASSWORD: ${{ secrets.MONGODB_DATABASE_USER }}
     steps:

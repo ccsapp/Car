@@ -64,7 +64,8 @@ func NewDbConnection(config DatabaseConfig) (IConnection, error) {
 
 func toConnectionUri(config DatabaseConfig) string {
 	return fmt.Sprintf(
-		"mongodb://%s:%s@%s:%d/%s",
+		"%s://%s:%s@%s:%d/%s",
+		config.GetMongoDbScheme(),
 		config.GetMongoDbUser(),
 		config.GetMongoDbPassword(),
 		config.GetMongoDbHost(),

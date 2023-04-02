@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	envMongoDbScheme       = "MONGODB_DATABASE_SCHEME"
 	envMongoDbHost         = "MONGODB_DATABASE_HOST"
 	envMongoDbPort         = "MONGODB_DATABASE_PORT"
 	envMongoDbDatabase     = "MONGODB_DATABASE_NAME"
@@ -18,6 +19,7 @@ const (
 	envAppCollectionPrefix = "CAR_COLLECTION_PREFIX"
 	envLocalSetupMode      = "CAR_LOCAL_SETUP"
 
+	defaultMongoDbScheme       = "mongodb"
 	defaultMongoDbPort         = 27017
 	defaultAppExposePort       = 80
 	defaultAppCollectionPrefix = ""
@@ -57,6 +59,7 @@ func readEnvironment() *Environment {
 // If any of the required environment variables is not set, the program will panic.
 func readEnvironmentFromEnv() *Environment {
 	return &Environment{
+		mongoDbScheme:       getStringEnvVariable(envMongoDbScheme, ptr(defaultMongoDbScheme)),
 		mongoDbHost:         getStringEnvVariable(envMongoDbHost, nil),
 		mongoDbPort:         getIntegerEnvVariable(envMongoDbPort, ptr(defaultMongoDbPort)),
 		mongoDbDatabase:     getStringEnvVariable(envMongoDbDatabase, nil),

@@ -16,6 +16,7 @@ func GetEnvironment() *Environment {
 }
 
 type Environment struct {
+	mongoDbScheme       string
 	mongoDbHost         string
 	mongoDbPort         int
 	mongoDbDatabase     string
@@ -24,6 +25,10 @@ type Environment struct {
 	appExposePort       int
 	appCollectionPrefix string
 	isLocalSetupMode    bool
+}
+
+func (e *Environment) GetMongoDbScheme() string {
+	return e.mongoDbScheme
 }
 
 func (e *Environment) GetMongoDbHost() string {

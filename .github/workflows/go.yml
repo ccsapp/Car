@@ -32,3 +32,9 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Upload Sequence Diagrams
+      uses: actions/upload-artifact@v3
+      with:
+          name: sequence-diagrams
+          path: ./src/.sequence/

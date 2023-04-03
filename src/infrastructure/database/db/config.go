@@ -1,10 +1,6 @@
 package db
 
 type DatabaseConfig interface {
-	GetMongoDbScheme() string
-	GetMongoDbHost() string
-	GetMongoDbPort() int
+	GetMongoDbConnectionString() string
 	GetMongoDbDatabase() string
-	GetMongoDbUser() string
-	GetMongoDbPassword() string
 }

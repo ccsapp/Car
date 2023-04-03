@@ -50,16 +50,12 @@ correct docker compose stack is running and will print a warning if it is not.
 Do not use the local setup mode in a deployment or a custom setup, i.e. do not set the `CAR_LOCAL_SETUP` environment
 variable. Instead, use the following environment variables to configure the microservice:
 
-| Environment Variable        | Local Setup Value | Comment                                                                                                                   |
-|-----------------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------|
-| `MONGODB_DATABASE_SCHEME`   | mongodb           | Optional, defaults to mongodb. This is the URI scheme used in the MongoDB connection string, as in `mongodb://localhost`. |
-| `MONGODB_DATABASE_HOST`     | localhost         |                                                                                                                           |
-| `MONGODB_DATABASE_PORT`     | 27021             | Optional, defaults to 27017. The local setup uses a non-default port!                                                     |
-| `MONGODB_DATABASE_NAME`     | ccsappvp2car      |                                                                                                                           |
-| `MONGODB_DATABASE_USER`     | root              |                                                                                                                           |
-| `MONGODB_DATABASE_PASSWORD` | example           |                                                                                                                           |
-| `CAR_EXPOSE_PORT`           | 8001              | Optional, defaults to 80. This is the port this microservice is exposing. The local setup exposes a non-default port!     |
-| `CAR_COLLECTION_PREFIX`     | localSetup-       | Optional. A (unique) prefix that is prepended to every database collection of this service.                               |
+| Environment Variable        | Local Setup Value                                   | Comment                                                                                                               |
+|-----------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `MONGODB_CONNECTION_STRING` | mongodb://root:example@localhost:27021/ccsappvp2car |                                                                                                                       |
+| `MONGODB_DATABASE_NAME`     | ccsappvp2car                                        |                                                                                                                       |
+| `CAR_EXPOSE_PORT`           | 8001                                                | Optional, defaults to 80. This is the port this microservice is exposing. The local setup exposes a non-default port! |
+| `CAR_COLLECTION_PREFIX`     | localSetup-                                         | Optional. A (unique) prefix that is prepended to every database collection of this service.                           |
 
 ## Testing
 

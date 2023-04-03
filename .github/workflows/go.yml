@@ -14,11 +14,8 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
-      MONGODB_DATABASE_SCHEME: ${{ vars.MONGODB_DATABASE_SCHEME }}
-      MONGODB_DATABASE_HOST: ${{ secrets.MONGODB_DATABASE_HOST }}
+      MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
       MONGODB_DATABASE_NAME: ${{ vars.MONGODB_DATABASE_NAME }}
-      MONGODB_DATABASE_USER: ${{ secrets.MONGODB_DATABASE_USER }}
-      MONGODB_DATABASE_PASSWORD: ${{ secrets.MONGODB_DATABASE_USER }}
     steps:
     - uses: actions/checkout@v3
 

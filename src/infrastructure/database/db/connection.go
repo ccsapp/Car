@@ -4,7 +4,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -62,21 +61,9 @@ func NewDbConnection(config DatabaseConfig) (IConnection, error) {
 	return &m, m.setupDatabase(config)
 }
 
-func toConnectionUri(config DatabaseConfig) string {
-	return fmt.Sprintf(
-		"%s://%s:%s@%s:%d/%s",
-		config.GetMongoDbScheme(),
-		config.GetMongoDbUser(),
-		config.GetMongoDbPassword(),
-		config.GetMongoDbHost(),
-		config.GetMongoDbPort(),
-		config.GetMongoDbDatabase(),
-	)
-}
-
 func (m *connection) setupDatabase(config DatabaseConfig) error {
 	opts := options.Client()
-	opts.ApplyURI(toConnectionUri(config))
+	opts.ApplyURI(config.GetMongoDbConnectionString())
 	var err error
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

@@ -3,8 +3,7 @@ Car is a domain layer microservice of CCSAppVP2 that provides static and dynamic
 
 Since the models that Car uses are also needed in other microservices they were extracted to a separate repository. 
 The models are available at 
-[cargotypes](https://github.com/ccsapp/cargotypes) to provide mappings for the 
-JSON responses.
+[cargotypes](https://github.com/ccsapp/cargotypes) to provide mappings for the JSON responses.
 
 The provided API endpoints of Car are specified in the
 [API specification](https://github.com/ccsapp/CarDesign/blob/main/openapi.yaml).

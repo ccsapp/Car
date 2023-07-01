@@ -9,16 +9,12 @@ import (
 )
 
 const (
-	envMongoDbHost         = "MONGODB_DATABASE_HOST"
-	envMongoDbPort         = "MONGODB_DATABASE_PORT"
-	envMongoDbDatabase     = "MONGODB_DATABASE_NAME"
-	envMongoDbUser         = "MONGODB_DATABASE_USER"
-	envMongoDbPassword     = "MONGODB_DATABASE_PASSWORD"
-	envAppExposePort       = "CAR_EXPOSE_PORT"
-	envAppCollectionPrefix = "CAR_COLLECTION_PREFIX"
-	envLocalSetupMode      = "CAR_LOCAL_SETUP"
+	envMongoDbConnectionString = "MONGODB_CONNECTION_STRING"
+	envMongoDbDatabase         = "MONGODB_DATABASE_NAME"
+	envAppExposePort           = "CAR_EXPOSE_PORT"
+	envAppCollectionPrefix     = "CAR_COLLECTION_PREFIX"
+	envLocalSetupMode          = "CAR_LOCAL_SETUP"
 
-	defaultMongoDbPort         = 27017
 	defaultAppExposePort       = 80
 	defaultAppCollectionPrefix = ""
 )
@@ -57,14 +53,11 @@ func readEnvironment() *Environment {
 // If any of the required environment variables is not set, the program will panic.
 func readEnvironmentFromEnv() *Environment {
 	return &Environment{
-		mongoDbHost:         getStringEnvVariable(envMongoDbHost, nil),
-		mongoDbPort:         getIntegerEnvVariable(envMongoDbPort, ptr(defaultMongoDbPort)),
-		mongoDbDatabase:     getStringEnvVariable(envMongoDbDatabase, nil),
-		mongoDbUser:         getStringEnvVariable(envMongoDbUser, nil),
-		mongoDbPassword:     getStringEnvVariable(envMongoDbPassword, nil),
-		appExposePort:       getIntegerEnvVariable(envAppExposePort, ptr(defaultAppExposePort)),
-		appCollectionPrefix: getStringEnvVariable(envAppCollectionPrefix, ptr(defaultAppCollectionPrefix)),
-		isLocalSetupMode:    getBooleanEnvVariable(envLocalSetupMode),
+		mongoDbConnectionString: getStringEnvVariable(envMongoDbConnectionString, nil),
+		mongoDbDatabase:         getStringEnvVariable(envMongoDbDatabase, nil),
+		appExposePort:           getIntegerEnvVariable(envAppExposePort, ptr(defaultAppExposePort)),
+		appCollectionPrefix:     getStringEnvVariable(envAppCollectionPrefix, ptr(defaultAppCollectionPrefix)),
+		isLocalSetupMode:        getBooleanEnvVariable(envLocalSetupMode),
 	}
 }
 

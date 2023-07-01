@@ -2,13 +2,11 @@
 Car is a domain layer microservice of CCSAppVP2 that provides static and dynamic car data.
 
 Since the models that Car uses are also needed in other microservices they were extracted to a separate repository. 
-The models are available at the private Git repository 
-[CarGoTypes](https://git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes) to provide mappings for the 
-JSON responses.
-Further information on the usage of private Git repositories with go can be found there.
+The models are available at 
+[cargotypes](https://github.com/ccsapp/cargotypes) to provide mappings for the JSON responses.
 
 The provided API endpoints of Car are specified in the
-[API specification](https://git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cardesign/-/blob/main/openapi.yaml).
+[API specification](https://github.com/ccsapp/CarDesign/blob/main/openapi.yaml).
 
 ## Local Setup Mode
 To run the microservice Car locally, you can use the MongoDB setup provided in the `dev` directory.
@@ -51,15 +49,12 @@ correct docker compose stack is running and will print a warning if it is not.
 Do not use the local setup mode in a deployment or a custom setup, i.e. do not set the `CAR_LOCAL_SETUP` environment
 variable. Instead, use the following environment variables to configure the microservice:
 
-| Environment Variable        | Local Setup Value | Comment                                                                                                               |
-|-----------------------------|-------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `MONGODB_DATABASE_HOST`     | localhost         |                                                                                                                       |
-| `MONGODB_DATABASE_PORT`     | 27021             | Optional, defaults to 27017. The local setup uses a non-default port!                                                 |
-| `MONGODB_DATABASE_NAME`     | ccsappvp2car      |                                                                                                                       |
-| `MONGODB_DATABASE_USER`     | root              |                                                                                                                       |
-| `MONGODB_DATABASE_PASSWORD` | example           |                                                                                                                       |
-| `CAR_EXPOSE_PORT`           | 8001              | Optional, defaults to 80. This is the port this microservice is exposing. The local setup exposes a non-default port! |
-| `CAR_COLLECTION_PREFIX`     | localSetup-       | Optional. A (unique) prefix that is prepended to every database collection of this service.                           |
+| Environment Variable        | Local Setup Value                                   | Comment                                                                                                               |
+|-----------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `MONGODB_CONNECTION_STRING` | mongodb://root:example@localhost:27021/ccsappvp2car |                                                                                                                       |
+| `MONGODB_DATABASE_NAME`     | ccsappvp2car                                        |                                                                                                                       |
+| `CAR_EXPOSE_PORT`           | 8001                                                | Optional, defaults to 80. This is the port this microservice is exposing. The local setup exposes a non-default port! |
+| `CAR_COLLECTION_PREFIX`     | localSetup-                                         | Optional. A (unique) prefix that is prepended to every database collection of this service.                           |
 
 ## Testing
 

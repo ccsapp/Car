@@ -8,7 +8,7 @@ import (
 	"DCar/infrastructure/database/mappers"
 	"context"
 	"errors"
-	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
+	carTypes "github.com/ccsapp/cargotypes"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

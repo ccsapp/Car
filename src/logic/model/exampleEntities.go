@@ -2,7 +2,7 @@ package model
 
 import (
 	"DCar/infrastructure/database/entities"
-	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
+	carTypes "github.com/ccsapp/cargotypes"
 )
 
 func ExampleDynamicData(trunkLockState entities.LockState) carTypes.DynamicData {

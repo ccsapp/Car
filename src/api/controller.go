@@ -2,7 +2,7 @@ package api
 
 import (
 	"DCar/infrastructure/database"
-	carTypes "git.scc.kit.edu/cm-tm/cm-team/projectwork/pse/domain/d-cargotypes.git"
+	carTypes "github.com/ccsapp/cargotypes"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
